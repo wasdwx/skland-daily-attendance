@@ -48,15 +48,16 @@ export const dingtalk = defineProvider('dingtalk:', {
       requestUrl.searchParams.set('sign', sign)
     }
 
-    // Build message body as plain text
-    const content = message.body
+    // Build message body as markdown
+    const text = message.body
       ? `${message.title}\n\n${message.body}`
       : message.title
 
     const body = {
-      msgtype: 'text',
-      text: {
-        content,
+      msgtype: 'markdown',
+      markdown: {
+        title: message.title,
+        text,
       },
     }
 

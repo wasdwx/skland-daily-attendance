@@ -62,13 +62,13 @@ async function processAccount(
   const hasAttended = await storage.getItem(attendanceKey)
 
   if (hasAttended) {
-    messageCollector.notify(`\n--- 账号 ${accountNumber}/${totalAccounts} ---`)
+    messageCollector.notify(`### 账号 ${accountNumber}/${totalAccounts}`)
     messageCollector.info(`今天已经签到过，跳过`)
     stats.accounts.skipped++
     return { accountHasError: false, charactersCount: 0 }
   }
 
-  messageCollector.notify(`\n--- 账号 ${accountNumber}/${totalAccounts} ---`)
+  messageCollector.notify(`### 账号 ${accountNumber}/${totalAccounts}`)
   messageCollector.info(`开始处理...`)
 
   const client = createClient()
@@ -201,7 +201,7 @@ export default defineTask<'success' | 'failed'>({
         catch (error) {
           const { stats, messageCollector } = useAttendanceContext()
           const errorMessage = error instanceof Error ? error.message : String(error)
-          messageCollector.notify(`\n--- 账号 ${accountNumber}/${tokens.length} ---`)
+          messageCollector.notify(`### 账号 ${accountNumber}/${tokens.length}`)
           messageCollector.infoError(`处理失败: ${errorMessage}`)
           hasFailed = true
           stats.accounts.failed++
@@ -211,25 +211,32 @@ export default defineTask<'success' | 'failed'>({
     })
 
     // Output execution summary
-    messageCollector.notify(`\n========== 执行摘要 ==========`)
-    messageCollector.notify(`账号统计:`)
-    messageCollector.notify(`  • 总数: ${stats.accounts.total}`)
-    messageCollector.notify(`  • 成功: ${stats.accounts.successful}`)
-    messageCollector.notify(`  • 跳过: ${stats.accounts.skipped}`)
+    const accountSummaryLines = [
+      `---`,
+      `### 📊 执行摘要`,
+      `**账号统计:**`,
+      `- 总数: ${stats.accounts.total}`,
+      `- 成功: ${stats.accounts.successful}`,
+      `- 跳过: ${stats.accounts.skipped}`,
+    ]
     if (stats.accounts.failed > 0) {
-      messageCollector.notifyError(`  • 失败: ${stats.accounts.failed} (账号 #${stats.accounts.failedIndexes.join(', #')})`)
+      accountSummaryLines.push(`- ❌ 失败: ${stats.accounts.failed} (账号 #${stats.accounts.failedIndexes.join(', #')})`)
     }
+    messageCollector.notify(accountSummaryLines.join('\n'))
 
     // Output game-specific statistics
     if (stats.charactersByGame.size > 0) {
       for (const gameStats of stats.charactersByGame.values()) {
-        messageCollector.notify(`\n【${gameStats.gameName}】角色统计:`)
-        messageCollector.notify(`  • 总数: ${gameStats.total}`)
-        messageCollector.notify(`  • 本次签到成功: ${gameStats.succeeded}`)
-        messageCollector.notify(`  • 今天已签到: ${gameStats.alreadyAttended}`)
+        const gameLines = [
+          `**【${gameStats.gameName}】角色统计:**`,
+          `- 总数: ${gameStats.total}`,
+          `- ✅ 本次签到成功: ${gameStats.succeeded}`,
+          `- 今天已签到: ${gameStats.alreadyAttended}`,
+        ]
         if (gameStats.failed > 0) {
-          messageCollector.notifyError(`  • 签到失败: ${gameStats.failed}`)
+          gameLines.push(`- ❌ 签到失败: ${gameStats.failed}`)
         }
+        messageCollector.notify(gameLines.join('\n'))
       }
     }
 

@@ -48,7 +48,7 @@ export const dingtalk = defineProvider('dingtalk:', {
       requestUrl.searchParams.set('sign', sign)
     }
 
-    // Build message body using markdown format for better display
+    // Build message body as plain text
     const content = message.body
       ? `${message.title}\n\n${message.body}`
       : message.title

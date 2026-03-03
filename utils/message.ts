@@ -1,4 +1,5 @@
-import { createSender } from 'statocysts'
+import { senderRegistry } from 'statocysts'
+import { dingtalk } from './dingtalk'
 
 export function toArray<T>(value: T | T[]): T[] {
   return Array.isArray(value) ? value : [value]
@@ -92,9 +93,21 @@ export function createMessageCollector(options: CreateMessageCollectorOptions): 
     const title = '【森空岛每日签到】'
     const content = messages.join('\n\n')
     const urls = options.notificationUrls ? toArray(options.notificationUrls) : []
-    const sender = createSender(urls)
+    const message = { title, body: content }
 
-    await sender.send(title, content)
+    for (const url of urls) {
+      const _url = new URL(typeof url === 'string' ? url : url.toString())
+
+      if (_url.protocol === 'dingtalk:') {
+        await dingtalk.send(_url.toString(), message)
+      }
+      else {
+        const provider = senderRegistry.resolveProvider(_url)
+        if (provider) {
+          await provider.send(_url.toString(), message)
+        }
+      }
+    }
 
     // Exit with error if any error occurred
     if (hasError && options.onError) {

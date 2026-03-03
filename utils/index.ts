@@ -1,4 +1,5 @@
 export * from './attendance'
+export * from './dingtalk'
 export * from './format'
 export * from './message'
 export * from './retry'

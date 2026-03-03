@@ -226,6 +226,29 @@ SKLAND_TOKENS=your-token-1,your-token-2
 SKLAND_NOTIFICATION_URLS="Statocysts 格式通知 URL"
 ```
 
+#### 钉钉机器人通知
+
+项目额外支持钉钉自定义机器人推送通知，且支持 HMAC-SHA256 签名鉴权。
+
+URL 格式：
+
+```bash
+# 带签名鉴权（推荐）
+SKLAND_NOTIFICATION_URLS="dingtalk://robot/<access_token>?secret=<secret>"
+
+# 不带签名鉴权
+SKLAND_NOTIFICATION_URLS="dingtalk://robot/<access_token>"
+```
+
+参数说明：
+
+| 参数 | 说明 | 是否必填 |
+|------|------|---------|
+| `access_token` | 钉钉机器人 Webhook 的 access_token | 必填 |
+| `secret` | 钉钉机器人的加签密钥，用于 HMAC-SHA256 鉴权 | 可选（推荐） |
+
+获取方式：在钉钉群中添加自定义机器人，选择「加签」安全设置，即可获取 `access_token` 和 `secret`。
+
 ### 3. 配置持久化存储（可选）
 
 项目支持使用持久化存储来记录每日签到状态。
